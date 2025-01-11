@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -16,7 +17,7 @@ var UserModel *mongo.Collection
 // ConnectToMongo connects to a local MongoDB instance
 func ConnectToMongo() {
 	// Replace this with your MongoDB connection details
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017/Golang")
+	clientOptions := options.Client().ApplyURI(os.Getenv("MONGODB_URI"))
 
 	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {

@@ -13,8 +13,8 @@ import (
 )
 
 func FindAll(c *gin.Context) {
-	cursor, err := db.UserModel.Find(context.TODO(), bson.M{})
 
+	cursor, err := db.UserModel.Find(context.TODO(), bson.M{})
 	if err != nil {
 		log.Fatal(err)
 	}
