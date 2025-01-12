@@ -8,7 +8,7 @@ import (
 
 func RegisterUserRoutes(Router *gin.RouterGroup) {
 	Router.GET("/", controllers.FindAll)
-	Router.POST("/", controllers.CreateUser)
+	Router.GET("/self", controllers.GetUserByJwt)
 	Router.DELETE("/:id", controllers.DeleteUserById)
 	Router.GET("/:id", controllers.FindById)
 	Router.PUT("/:id", controllers.UpdateUserById)

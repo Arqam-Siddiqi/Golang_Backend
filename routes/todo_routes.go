@@ -1,11 +1,15 @@
 package routes
 
-import "github.com/gin-gonic/gin"
+import (
+	"Golang_Backend/controllers"
+
+	"github.com/gin-gonic/gin"
+)
 
 func RegisterTodoRoutes(router *gin.RouterGroup) {
 
-	router.GET("/", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{"message": "Stuff"})
-	})
+	router.GET("/", controllers.GetAllTodos)
+	router.POST("/", controllers.CreateTodo)
+	router.GET("/self", controllers.GetUserTodos)
 
 }

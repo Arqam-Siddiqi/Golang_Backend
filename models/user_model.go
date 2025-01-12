@@ -2,12 +2,13 @@ package models
 
 import (
 	"Golang_Backend/db"
+	"Golang_Backend/utils"
 	"context"
 	"fmt"
 
-	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type User struct {
@@ -17,10 +18,13 @@ type User struct {
 	Password string      `json:"password" validate:"required"`
 }
 
-var validate = validator.New()
+type LoginRequest struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
 
 func (u *User) Validate() error {
-	return validate.Struct(u)
+	return utils.Validate.Struct(u)
 }
 
 func CreateUser(u *User) (*User, error) {
@@ -61,5 +65,27 @@ func UpdateUser(u *User, _id primitive.ObjectID) (*User, error) {
 	}
 
 	return u, nil
+
+}
+
+func Login(email string, password string) (*User, error) {
+
+	result := db.UserModel.FindOne(context.TODO(), bson.M{"email": email})
+	if err := result.Err(); err != nil && err != mongo.ErrNoDocuments {
+		return nil, fmt.Errorf("failed to fetch user: %w", err)
+	} else if err == mongo.ErrNoDocuments {
+		return nil, fmt.Errorf("invalid credentials")
+	}
+
+	var user User
+	if err := result.Decode(&user); err != nil {
+		return nil, fmt.Errorf("failed to decode user result: %w", err)
+	}
+
+	if user.Password != password {
+		return nil, fmt.Errorf("invalid credentials")
+	}
+
+	return &user, nil
 
 }

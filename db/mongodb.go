@@ -13,6 +13,7 @@ import (
 var MongoDB *mongo.Client
 var Database *mongo.Database
 var UserModel *mongo.Collection
+var TodoModel *mongo.Collection
 
 // ConnectToMongo connects to a local MongoDB instance
 func ConnectToMongo() {
@@ -33,6 +34,7 @@ func ConnectToMongo() {
 	MongoDB = client
 	Database = client.Database("Golang")
 	UserModel = Database.Collection("Users")
+	TodoModel = Database.Collection("Todos")
 
 	fmt.Println("Successfully connected to MongoDB!")
 }

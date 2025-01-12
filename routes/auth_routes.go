@@ -1,11 +1,14 @@
 package routes
 
-import "github.com/gin-gonic/gin"
+import (
+	"Golang_Backend/controllers"
 
-func RegisterAuthRoutes(router gin.RouterGroup) {
+	"github.com/gin-gonic/gin"
+)
 
-	router.POST("/login", func(ctx *gin.Context) {
+func RegisterAuthRoutes(router *gin.RouterGroup) {
 
-	})
+	router.POST("/signup", controllers.SignUp)
+	router.POST("/login", controllers.Login)
 
 }

@@ -22,7 +22,11 @@ func main() {
 	db.ConnectToMongo()
 	defer db.MongoDB.Disconnect(context.TODO())
 
+	authRoutes := server.Group("/auth")
+	routes.RegisterAuthRoutes(authRoutes)
+
 	userRoutes := server.Group("/user")
+	userRoutes.Use(middlewares.RequireAuth())
 	routes.RegisterUserRoutes(userRoutes)
 
 	todoRoutes := server.Group("/todo")

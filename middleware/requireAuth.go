@@ -1,6 +1,8 @@
 package middlewares
 
 import (
+	"Golang_Backend/db"
+	"context"
 	"log"
 	"net/http"
 	"os"
@@ -8,6 +10,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func RequireAuth() gin.HandlerFunc {
@@ -47,9 +51,31 @@ func RequireAuth() gin.HandlerFunc {
 			return
 		}
 
-		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-			ctx.Set("userID", claims["user_id"]) // Example of setting user ID from claims
+		var claims jwt.MapClaims
+		var ok bool
+		if claims, ok = token.Claims.(jwt.MapClaims); !ok {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+			ctx.Abort()
+			return
 		}
+
+		_id := claims["_id"]
+		objectId, err := primitive.ObjectIDFromHex(_id.(string))
+		if err != nil {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+			ctx.Abort()
+			return
+		}
+
+		exists := db.UserModel.FindOne(context.TODO(), bson.M{"_id": objectId})
+
+		if exists.Err() != nil {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+			ctx.Abort()
+			return
+		}
+
+		ctx.Set("user_id", objectId) // Example of setting user ID from claims
 
 		ctx.Next()
 	}
