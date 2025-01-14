@@ -28,26 +28,28 @@ func FindAll(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, users)
 }
 
-func DeleteUserById(ctx *gin.Context) {
+func DeleteUserByJwt(ctx *gin.Context) {
 
-	id := ctx.Param("id")
-
-	_id, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Object ID"})
-		return
-	}
+	_id, _ := ctx.Get("user_id")
 
 	result := db.UserModel.FindOneAndDelete(context.TODO(), bson.M{"_id": _id})
 
 	if result.Err() != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "This Object doesn't exist."})
+		ctx.Abort()
+		return
+	}
+
+	if _, err := db.TodoModel.DeleteMany(context.TODO(), bson.M{"user_id": _id.(primitive.ObjectID).Hex()}); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error deleting Associated Todos."})
+		ctx.Abort()
 		return
 	}
 
 	var user bson.M
 	if err := result.Decode(&user); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error decoding deleted user."})
+		ctx.Abort()
 		return
 	}
 

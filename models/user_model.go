@@ -55,9 +55,7 @@ func UpdateUser(u *User, _id primitive.ObjectID) (*User, error) {
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
 
-	update := bson.M{
-		"$set": u, // This will update only the fields in the struct
-	}
+	update := bson.M{"$set": u}
 
 	_, err := db.UserModel.UpdateByID(context.TODO(), _id, update)
 	if err != nil {
